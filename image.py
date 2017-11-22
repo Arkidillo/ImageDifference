@@ -20,23 +20,26 @@ for z in range(n):
 	w = img1.width
 	h = img1.height
 
+	# Construct 3d array of pixels (2d right now, will become 3d when we append to it)
 	px3 = [[[]for y in range(h)] for z in range(w)]
-	img3 = Image.new('RGB', (w, h))
-
+	img3 = Image.new(img1.mode, (w, h))
 
 	for i in range(w):
 		for j in range(h):
-			for k in range(3):
-				# Add the difference * contrast on to the output pixels 
+			for k in range(len(px1[0, 0])):
+				# The pixel is a tuple, so for each value in the tuple, calculate the difference (and mulitply by contrast) 
 				px3[i][j].append((px1[i, j][k] - px2[i, j][k]) * contrast)
 
-				# If it was negative, change it to 0
+				# If the difference was negative, change it to 0
 				if px3[i][j][k] < 0:
 					px3[i][j].pop(k)
 					px3[i][j].append(0)
+
+
+
 
 	for i in range(w):
 		for j in range(h):
 			img3.putpixel((i, j), tuple(px3[i][j]))
 
-	img3.show()
+	img3.show('Frame' + str(z))
