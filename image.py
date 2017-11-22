@@ -1,7 +1,11 @@
 from PIL import Image, ImageFilter
 from urllib.request import urlopen
 
-while True:
+# Multiply the difference by this value to increase contrast of the result image
+contrast = int(input('Enter contrast of the difference (probably 4 - 25): '))
+n = int(input('Enter how many frames you want this to run for: '))
+
+for z in range(n):
 	# Download the image
 	with urlopen("http://128.164.158.1/jpg/image.jpg") as conn:
 		img1 = Image.open(conn)
@@ -19,14 +23,12 @@ while True:
 	px3 = [[[]for y in range(h)] for z in range(w)]
 	img3 = Image.new('RGB', (w, h))
 
-	# Multiply the difference by this value to increase contrast of the result image
-	intensity = 5
 
 	for i in range(w):
 		for j in range(h):
 			for k in range(3):
-				# Add the difference * intensity on to the output pixels 
-				px3[i][j].append((px1[i, j][k] - px2[i, j][k]) * intensity)
+				# Add the difference * contrast on to the output pixels 
+				px3[i][j].append((px1[i, j][k] - px2[i, j][k]) * contrast)
 
 				# If it was negative, change it to 0
 				if px3[i][j][k] < 0:
@@ -38,7 +40,3 @@ while True:
 			img3.putpixel((i, j), tuple(px3[i][j]))
 
 	img3.show()
-
-
-
-	#print(img)
