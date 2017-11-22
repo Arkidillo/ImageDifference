@@ -2,8 +2,8 @@ from PIL import Image, ImageFilter
 from urllib.request import urlopen
 
 # Multiply the difference by this value to increase contrast of the result image
-contrast = int(input('Enter contrast of the difference (probably 4 - 25): '))
-n = int(input('Enter how many frames you want this to run for: '))
+contrast = int(input('Enter contrast of the difference (probably 2 - 5?): '))
+n = int(input('Enter how many frames do you want this to run for: '))
 
 for z in range(n):
 	# Download the image
