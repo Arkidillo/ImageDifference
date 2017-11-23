@@ -2,7 +2,7 @@ from PIL import Image, ImageFilter
 from urllib.request import urlopen
 
 # Multiply the difference by this value to increase contrast of the result image
-contrast = int(input('Enter contrast of the difference (probably 2 - 5?): '))
+contrast = int(input('Enter contrast of the difference (probably 1 - 5?): '))
 n = int(input('Enter how many frames do you want this to run for: '))
 
 # Download the image
@@ -18,12 +18,10 @@ with urlopen("http://128.164.158.1/jpg/image.jpg") as conn:
 # w and h should be the same from both images
 w = img1.width
 h = img1.height
+
 for z in range(n):
-
-
-
 	# Construct 3d array of pixels (2d right now, will become 3d when we append to it)
-	px3 = [[[]for y in range(h)] for z in range(w)]
+	px3 = [[[] for y in range(h)] for z in range(w)]
 	img3 = Image.new(img1.mode, (w, h))
 
 	for i in range(w):
