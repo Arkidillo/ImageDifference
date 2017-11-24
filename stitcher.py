@@ -1,11 +1,24 @@
 import imutils
 import cv2
 import numpy as np
+import time
+from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from panorama import Stitcher
 from urllib.request import urlopen
 import webbrowser
 from PIL import Image, ImageFilter
 
+
+driver = webdriver.Chrome()
+driver.get("http://128.164.158.1/view/view.shtml?id=2197&imagepath=%2Fmjpg%2Fvideo.mjpg&size=1")
+time.sleep(10)
+leftButton = driver.find_element_by_id("pan-left")
+
+# Hold pan, 
+ActionChains(driver).move_to_element(leftButton).click_and_hold(leftButton).perform()
+time.sleep(100)
+ActionChains(driver).release(leftButton).perform()
 # Ask the user how many pictures they want to use in the panorama
 frames = int(input('How many frames do you want in the panorama (max 5)?'))
 
