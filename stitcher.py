@@ -1,31 +1,50 @@
 import imutils
 import cv2
+import numpy as np
 from panorama import Stitcher
+from urllib.request import urlopen
+import webbrowser
+from PIL import Image, ImageFilter
 
-imageA = cv2.imread("image-1.jpg")
-imageB = cv2.imread("image0.jpg")
-imageC = cv2.imread("image1.jpg")
-imageD = cv2.imread("image2.jpg")
+frames = int(input('How many frames do you want in the panorama (max 5)?'))
 
-imageA = imutils.resize(imageA, width=960)
-imageB = imutils.resize(imageB, width=960)
-imageC = imutils.resize(imageC, width=960)
-imageD = imutils.resize(imageD, width=960)
+pilImage = []
+print('Image 1 downloading...')
+with urlopen("http://128.164.158.1/jpg/image.jpg") as conn:
+	pilImage.append(Image.open(conn))
+	print('Image 1 downloaded!\n')
+
+print('Please rotate the camera by a reasonable amount (~15deg) on the website')
+print('Enter y to open website')
+yn = input('Enter n if you already have it open: ')
+if yn == 'y' or yn == 'Y':
+	webbrowser.open("http://128.164.158.1/view/view.shtml?id=2197&imagepath=%2Fmjpg%2Fvideo.mjpg&size=1", new=2)
+
+for i in range(frames - 1):
+
+	print('Please rotate the camera by a reasonable amount (~15deg) on the website')
+	input('Once you have rotated the camera, hit enter')
+
+	print('Image ' + str(i + 2) + ' downloading...')
+	with urlopen("http://128.164.158.1/jpg/image.jpg") as conn:
+		pilImage.append(Image.open(conn))
+		print('Image ' + str(i + 2) + ' downloaded!\n')
+
+images = []
+for i in range(frames):
+	npImage = np.array(pilImage[frames - 1 - i])
+	images.append(npImage[:,:,::-1].copy())
+	images[i] = imutils.resize(images[i], width=960, height=540)
 
 stitcher = Stitcher()
 
-# Combine A and B
-(imageAB, vis) = stitcher.stitch([imageA, imageB], showMatches=True)
-#imageAB = imutils.resize(imageAB, width=960)
+result = images[frames - 1]
+for i in range(frames - 1):
+	(result, vis) = stitcher.stitch([images[frames - 2 - i], result], showMatches=True)
 
-# Combine C and D
-(imageCD, vis) = stitcher.stitch([imageC, imageD], showMatches=True)
-#imageCD = imutils.resize(imageCD, width=960)
-
-# Combine the 2 results:
-(result, vis) = stitcher.stitch([imageAB, imageCD], showMatches=True)
-
-cv2.imshow("Image AB", imageAB)
-cv2.imshow("Image CD", imageCD)
+#cv2.imshow("Image A", imageA)
+#cv2.imshow("Image B", imageB)
+#cv2.imshow("Image BC", imageBC)
+#cv2.imshow("Image C", imageC)
 cv2.imshow("Result", result)
 cv2.waitKey(0)
