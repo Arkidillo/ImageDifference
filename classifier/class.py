@@ -1,15 +1,14 @@
 from __future__ import print_function
-import argparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
-# Converts a PIL image which range from 0-1. We need the values to be -1 - 1
-transform = transforms.Compose(
-	[transforms.ToTensor(),
-	 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+import matplotlib.pyplot as plt
+import matplotlib.axes as ax
+import numpy as np
+import pylab as p
 
 batch_size = 64
 test_batch_size = 1000
@@ -33,6 +32,9 @@ test_loader = torch.utils.data.DataLoader(
                        transforms.Normalize((0.1307,), (0.3081,))
                    ])),
     batch_size=test_batch_size, shuffle=True, **kwargs)
+
+images = torch.utils.data.DataLoader(
+	datasets.MNIST('../data', train=False), batch_size = test_batch_size, shuffle= False, **kwargs)
 
 class Net(nn.Module):
 	def __init__(self):
@@ -59,22 +61,40 @@ if cuda:
 optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 
 def train():
+	x = []
+	y = []
+	i = 0
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	ax.set_title('Accuracy Vs. Generations')
+	ax.set_xlabel('Generations')
+	ax.set_ylabel('Accuracy (%)')
+	correct = 0
 	model.train()
 	for batch_idx, (data, target) in enumerate(train_loader):
+		i += 1
 		if cuda:
 			data, target = data.cuda(), target.cuda()
 		data, target = Variable(data), Variable(target)
 		optimizer.zero_grad()
 		output = model(data)
+		pred = output.data.max(1, keepdim=True)[1]
+		correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+		x.append(i)
+		y.append(100.*correct/len(train_loader.dataset))
 		loss = F.nll_loss(output, target)
 		loss.backward()
 		optimizer.step()
+	plt.plot(x, y)
+	plt.show()
 
 def test():
 	model.eval();
 	test_loss = 0
 	correct = 0
+
 	for data, target in test_loader:
+		i += 1
 		if cuda:
 			data, target = data.cuda(), target.cuda()
 		data, target = Variable(data, volatile=True), Variable(target)
@@ -85,6 +105,7 @@ def test():
 
 		test_loss/= len(test_loader.dataset)
 		print('\nTest set: Average loss: {:.4f}, Accuracy {}/{} ({:.0f}%\n'.format(test_loss, correct, len(test_loader.dataset), 100.*correct/len(test_loader.dataset)))
+
 
 train()
 test()
